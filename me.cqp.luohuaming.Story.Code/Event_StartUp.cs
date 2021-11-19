@@ -26,6 +26,19 @@ namespace me.cqp.luohuaming.Story.Code
                 e.CQLog.Warning("UID", "请按照文档指示将UID放入对应字条下，之后重载插件"); 
                 return; 
             }
+            var verify = WebAPI.VerifyUID(MainSave.UID);
+            if (verify == null || string.IsNullOrWhiteSpace(verify.data.user.name))
+            {
+                e.CQLog.Warning("UID", "无效的UID，请重新填写");
+                return;
+            }
+            e.CQLog.Info("UID", $"校验成功，昵称: {verify.data.user.nickname} 手机: {verify.data.user.phone}");
+
+            if (string.IsNullOrWhiteSpace(MainSave.Mid))
+            {
+                WebAPI.GetModelList();
+                e.CQLog.Info("模型列表", "默认拉取第一个");
+            }
             foreach (var item in Assembly.GetAssembly(typeof(Event_GroupMessage)).GetTypes())
             {
                 if (item.IsInterface)

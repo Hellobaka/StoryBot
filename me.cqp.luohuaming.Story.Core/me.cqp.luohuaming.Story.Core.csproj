@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>me.cqp.luohuaming.Story.Core</RootNamespace>
-    <AssemblyName>me.cqp.luohuaming.PLUGINNAME</AssemblyName>
+    <AssemblyName>me.cqp.luohuaming.Story</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -172,13 +172,8 @@ if exist "$(TargetDir)$(TargetName)\app.dll" (del /F /A /Q "$(TargetDir)$(Target
 if exist "$(TargetDir)$(TargetName)\app.json" (del /F /A /Q "$(TargetDir)$(TargetName)\app.json")</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(TargetDir)$(TargetName).dll" (
-move "$(TargetDir)$(TargetName).dll" "$(TargetDir)$(TargetName)" 
-rename "$(TargetDir)$(TargetName)\$(TargetName).dll" "app.dll" 
-) 
-if exist "$(TargetDir)app.json" (
-move "$(TargetDir)app.json" "$(TargetDir)$(TargetName)" 
-)</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>

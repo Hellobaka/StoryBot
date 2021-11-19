@@ -50,6 +50,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -63,8 +66,13 @@
     <Compile Include="Event_PrivateMessage.cs" />
     <Compile Include="Event_GroupMessage.cs" />
     <Compile Include="Event_StartUp.cs" />
+    <Compile Include="OrderFunctions\DoStory.cs" />
+    <Compile Include="OrderFunctions\EndStory.cs" />
+    <Compile Include="OrderFunctions\Verify.cs" />
+    <Compile Include="OrderFunctions\StartStory.cs" />
     <Compile Include="OrderFunctions\ExampleFunction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StoreStory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\me.cqp.luohuaming.Story.PublicInfos\me.cqp.luohuaming.Story.PublicInfos.csproj">
@@ -79,6 +87,9 @@
       <Project>{0ca93eb9-4e25-46c6-94d2-0f97137a1606}</Project>
       <Name>me.cqp.luohuaming.Story.Tool</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

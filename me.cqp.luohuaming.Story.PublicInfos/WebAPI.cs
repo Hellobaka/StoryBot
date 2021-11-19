@@ -10,19 +10,24 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         {
             HttpWebClient client = new HttpWebClient
             {
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.53"
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.53",
+                ContentType = "application/json",
+                Accept = "*/*",
+                KeepAlive = true,
+                Encoding = System.Text.Encoding.UTF8,
+                TimeOut = 60000
             };
             return client;
         }
-        public static UserInfo VerifyUID(string UID)
+        public static UserInfo.Index VerifyUID(string UID)
         {
             string baseURL = $"http://if.caiyunai.com/v2/user/{UID}/info";
             using (var http = GetHttp())
             {
-                var result = http.UploadString(baseURL, "{ostype: \"\", lang: \"zh\"}");
+                var result = http.UploadString(baseURL, "{\"ostype\": \"\", \"lang\": \"zh\"}");
                 if(VerifyResult(result))
                 {
-                    return JsonConvert.DeserializeObject<UserInfo>(result);
+                    return JsonConvert.DeserializeObject<UserInfo.Index>(result);
                 }
                 else
                 {
@@ -31,15 +36,23 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                 }
             }
         }
-        public static NovelSave_New NewNovel(string UID, string content, string title)
+        public static NovelSave_New.Index NewNovel(string UID, string content, string title)
         {
             string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/novel_save";
             using (var http = GetHttp())
             {
-                var result = http.UploadString(baseURL, $"{{title: \"{title}\", nodes: [], text: \"{content}\", ostype: \"\", lang: \"zh\"}}");
+                var json = new JObject
+                {
+                    {"title", title },
+                    {"nodes", new JArray() },
+                    {"text", content },
+                    {"ostype", "" },
+                    {"lang", "zh" },
+                };
+                var result = http.UploadString(baseURL, json.ToString(Formatting.None));
                 if (VerifyResult(result))
                 {
-                    return JsonConvert.DeserializeObject<NovelSave_New>(result);
+                    return JsonConvert.DeserializeObject<NovelSave_New.Index>(result);
                 }
                 else
                 {
@@ -48,7 +61,8 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                 }
             }
         }
-        public static NovelAI NovelAI(string UID, string branchID, string lastnode, string nid, string mid, string content)
+
+        public static NovelAI.Index NovelAI(string UID, string branchID, string lastnode, string nid, string mid, string content)
         {
             string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/novel_ai";
             using (var http = GetHttp())
@@ -67,10 +81,10 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                     {"title","" },
                     {"uid", UID },
                 };
-                var result = http.UploadString(baseURL, json.ToString());
+                var result = http.UploadString(baseURL, json.ToString(Formatting.None));
                 if (VerifyResult(result))
                 {
-                    return JsonConvert.DeserializeObject<NovelAI>(result);
+                    return JsonConvert.DeserializeObject<NovelAI.Index>(result);
                 }
                 else
                 {
@@ -88,11 +102,13 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                 {
                     {"choose", choose },
                     {"lang", "zh" },
+                    {"nid", nid },
                     {"nodeids", JsonConvert.SerializeObject(nodeids) },
                     {"ostype", "" },
-                    {"value", value },
+                    {"text", value },
+                    {"title", "" },
                 };
-                var result = http.UploadString(baseURL, json.ToString());
+                var result = http.UploadString(baseURL, json.ToString(Formatting.None));
                 if (VerifyResult(result))
                 {
                     return true;
@@ -104,7 +120,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                 }
             }
         }
-        public static NovelSave_Add DoNovelSave_Add(string UID, string branchid, string nid, string[] nodeids, object nodes, string text)
+        public static NovelSave_Add.Index DoNovelSave_Add(string UID, string branchid, string nid, string[] nodeids, JArray nodes, string text)
         {
             string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/novel_save";
             using(var http = GetHttp())
@@ -114,16 +130,16 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                     {"branchid", branchid },
                     {"lang", "zh" },
                     {"nid", nid },
-                    {"nodeids", JsonConvert.SerializeObject(nodeids) },
-                    {"nodes", JsonConvert.SerializeObject(nodes) },
+                    {"nodeids", new JArray(nodeids) },
+                    {"nodes", nodes },
                     {"ostype", "" },
                     {"text", text },
                     {"title", "" },
                 };
-                var result = http.UploadString(baseURL, json.ToString());
+                var result = http.UploadString(baseURL, json.ToString(Formatting.None));
                 if (VerifyResult(result))
                 {
-                    return JsonConvert.DeserializeObject<NovelSave_Add>(result);
+                    return JsonConvert.DeserializeObject<NovelSave_Add.Index>(result);
                 }
                 else
                 {
@@ -132,6 +148,15 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                 }
             }
         }
-        public static bool VerifyResult(string result) => result.Contains("msg: \"ok\"") && result.Contains("status: 0");
+        public static void GetModelList()
+        {
+            string baseURL = "http://if.caiyunai.com/v2/model/model_list";
+            using(var http = GetHttp())
+            {
+                var json = http.DownloadString(baseURL);
+                MainSave.Mid = JsonConvert.DeserializeObject<ModelList.Index>(json).data.models[0].mid;
+            }
+        }
+        public static bool VerifyResult(string result) => result.Contains("\"msg\":\"ok\"") && result.Contains("\"status\":0");
     }
 }
