@@ -15,7 +15,16 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         public static CQApi CQApi { get; set; }
         public static string AppDirectory { get; set; }
         public static string ImageDirectory { get; set; }
-
+        public static string UID {
+            get
+            {
+                string r = ConfigMain.Object["Config"]["UID"]?.ToString();
+                if (string.IsNullOrWhiteSpace(r))
+                    return string.Empty;
+                return r;
+            }
+            set { ConfigMain.Object["Config"]["UID"] = value; ConfigMain.Save(); }
+        }
         static IniConfig configMain;
         public static IniConfig ConfigMain
         {

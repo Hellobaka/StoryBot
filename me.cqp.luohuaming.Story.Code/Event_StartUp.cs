@@ -8,7 +8,7 @@ using me.cqp.luohuaming.Story.Sdk.Cqp.EventArgs;
 using me.cqp.luohuaming.Story.Sdk.Cqp.Interface;
 using me.cqp.luohuaming.Story.PublicInfos;
 using System.Reflection;
-
+using System.IO;
 
 namespace me.cqp.luohuaming.Story.Code
 {
@@ -20,8 +20,12 @@ namespace me.cqp.luohuaming.Story.Code
             MainSave.CQApi = e.CQApi;
             MainSave.CQLog = e.CQLog;
             MainSave.ImageDirectory = CommonHelper.GetAppImageDirectory();
-            //这里写处理逻辑
-            //MainSave.Instances.Add(new ExampleFunction());//这里需要将指令实例化填在这里
+
+            if (string.IsNullOrWhiteSpace(MainSave.UID))
+            { 
+                e.CQLog.Warning("UID", "请按照文档指示将UID放入对应字条下，之后重载插件"); 
+                return; 
+            }
             foreach (var item in Assembly.GetAssembly(typeof(Event_GroupMessage)).GetTypes())
             {
                 if (item.IsInterface)
