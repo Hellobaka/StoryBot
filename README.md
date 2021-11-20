@@ -22,4 +22,6 @@ UID=
 2. 打开开发者工具, 跳转至网络页
 3. 刷新页面
 4. 过滤器内填`info`, 单击左侧的结果, 复制URL中`http://if.caiyunai.com/v2/user/6191f39xxxxxxxx6d20xxx2/info`的`user与info`中间的`6191f39xxxxxxxx6d20xxx2`, 这个是UID
+![step 4](https://user-images.githubusercontent.com/50934714/142718850-912b6165-f6e9-45f8-ae6a-463e34aadb4d.png)
 5. 过滤器内填`model_list`, 单击左侧的结果, 右侧顶部选项卡选择第二个`预览`, 展开Json, 即可看到`mid`, 按照自己的喜好填写即可
+![Step 5](https://user-images.githubusercontent.com/50934714/142718855-805f48a2-e841-435c-9c46-2850dcb046ef.png)
