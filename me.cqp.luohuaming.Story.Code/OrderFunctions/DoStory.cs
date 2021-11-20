@@ -2,6 +2,8 @@ using me.cqp.luohuaming.Story.Sdk.Cqp.EventArgs;
 using me.cqp.luohuaming.Story.PublicInfos;
 using System.Threading;
 using System.Linq;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace me.cqp.luohuaming.Story.Code.OrderFunctions
 {
@@ -50,7 +52,53 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                 return story.Text;
             }
         }
-
+        public static Bitmap GenStoryPic(string oldText, string newText)
+        {
+            oldText = oldText.Replace("\n", "  \n");
+            newText = newText.Replace("\n", "  \n");            
+            int padding = 10, width = 900;
+            Font font = new Font("微软雅黑 Light", 16, FontStyle.Regular);
+            int maxWidth = width - padding * 2, charGap = -5, maxHeight = 0;
+            using (Bitmap Result = new Bitmap(width, 30000))
+            {
+                using (Graphics g = Graphics.FromImage(Result))
+                {
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.FillRectangle(Brushes.White, new RectangleF(0, 0, width, 30000));
+                    PointF nowPoint = new PointF(padding, padding);
+                    foreach (var item in oldText)
+                    {
+                        var charSize = g.MeasureString(item.ToString(), font);
+                        g.DrawString(item.ToString(), font, Brushes.Black, nowPoint);
+                        WrapTest(maxWidth, padding, charGap, charSize, ref nowPoint);
+                    }
+                    foreach (var item in newText)
+                    {
+                        var charSize = g.MeasureString(item.ToString(), font);
+                        g.DrawString(item.ToString(), font, Brushes.Red, nowPoint);
+                        WrapTest(maxWidth, padding, charGap, charSize, ref nowPoint);
+                        maxHeight = (int)(nowPoint.Y + charSize.Height + padding * 2);
+                    }
+                }
+                Bitmap tmp = new Bitmap(width, maxHeight);
+                using (Graphics g = Graphics.FromImage(tmp))
+                    g.DrawImageUnscaled(Result, new Point(0, 0));
+                return tmp;
+            }
+        }
+        public static void WrapTest(int maxWidth, int padding, int charGap, SizeF charSize, ref PointF point)
+        {
+            if (point.X + charSize.Width >= maxWidth)
+            {
+                point.X = padding;
+                point.Y += charSize.Height + 2;
+            }
+            else
+            {
+                point.X += charSize.Width + charGap;
+            }
+        }
         public FunctionResult Progress(CQGroupMessageEventArgs e)//群聊处理
         {
             FunctionResult result = new FunctionResult

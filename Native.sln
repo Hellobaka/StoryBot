@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "me.cqp.luohuaming.Story.UI"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "me.cqp.luohuaming.Story.PublicInfos", "me.cqp.luohuaming.Story.PublicInfos\me.cqp.luohuaming.Story.PublicInfos.csproj", "{E51E5D1F-7BB5-4A0A-B82A-4889267EE82F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "me.cqp.luohuaming.Story.CodeTests", "me.cqp.luohuaming.Story.CodeTests\me.cqp.luohuaming.Story.CodeTests.csproj", "{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,14 @@ Global
 		{E51E5D1F-7BB5-4A0A-B82A-4889267EE82F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E51E5D1F-7BB5-4A0A-B82A-4889267EE82F}.Release|x86.ActiveCfg = Release|x86
 		{E51E5D1F-7BB5-4A0A-B82A-4889267EE82F}.Release|x86.Build.0 = Release|x86
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Debug|x86.Build.0 = Debug|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Release|x86.ActiveCfg = Release|Any CPU
+		{B45FC58C-DCC6-4401-A143-9CE6F7DAF120}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
