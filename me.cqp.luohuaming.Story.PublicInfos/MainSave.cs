@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using me.cqp.luohuaming.Story.Sdk.Cqp;
 using me.cqp.luohuaming.Story.Tool.IniConfig;
 
@@ -35,6 +37,36 @@ namespace me.cqp.luohuaming.Story.PublicInfos
                 return r;
             }
             set { ConfigMain.Object["Config"]["UID"] = value; ConfigMain.Save(); }
+        }
+        public static string Font {
+            get
+            {
+                string r = ConfigMain.Object["Config"]["Font"]?.ToString();
+                if (string.IsNullOrWhiteSpace(r))
+                    return "微软雅黑";
+                return r;
+            }
+            set { ConfigMain.Object["Config"]["Font"] = value; ConfigMain.Save(); }
+        }
+        public static int PicWidth {
+            get
+            {
+                string r = ConfigMain.Object["Config"]["PicWidth"]?.ToString();
+                if (string.IsNullOrWhiteSpace(r))
+                    return 900;
+                return Convert.ToInt32(r);
+            }
+            set { ConfigMain.Object["Config"]["PicWidth"] = value; ConfigMain.Save(); }
+        }
+        public static string ThinkText {
+            get
+            {
+                string r = ConfigMain.Object["Config"]["ThinkText"]?.ToString();
+                if (string.IsNullOrWhiteSpace(r))
+                    return "emmmm|让我想想...|我试试能写出点啥...|难内...";
+                return r;
+            }
+            set { ConfigMain.Object["Config"]["ThinkText"] = value; ConfigMain.Save(); }
         }
         static IniConfig configMain;
         public static IniConfig ConfigMain

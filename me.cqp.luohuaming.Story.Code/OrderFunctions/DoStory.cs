@@ -4,6 +4,9 @@ using System.Threading;
 using System.Linq;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System;
+using System.IO;
+using me.cqp.luohuaming.Story.Sdk.Cqp;
 
 namespace me.cqp.luohuaming.Story.Code.OrderFunctions
 {
@@ -15,7 +18,8 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
 
         public bool Judge(string destStr) => destStr.StartsWith(GetOrderStr());
 
-        public string GetStoryString(long Origin, string content)
+        private object StoryLock = new object();
+        public (string, string) GetStoryString(long Origin, string content)
         {
             var story = StoreStory.StoreInstance[Origin];
             story.UpdateRemove();
@@ -37,11 +41,12 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                 Thread.Sleep(500);
                 WebAPI.AddNode(MainSave.UID, nextNewNode.nodeid, story.nid, story.Text, newResult.data.nodes.Select(x => x.nodeid).ToArray());
                 WebAPI.DoNovelSave_Add(MainSave.UID, story.branchid, story.nid, newResult.data.nodes.Select(x => x.nodeid).ToArray(), story.GenNodes(), story.Text);
-                return story.Text;
+                return (content, nextNewNode.content);
             }
             else
             {
                 story.Text += content;
+                string oldText = story.Text;
                 var newResult = WebAPI.NovelAI(MainSave.UID, story.branchid, story.nodes[story.nodes.Count-1].nodeid, story.nid, story.mid, story.Text);
                 var nextNewNode = newResult.data.nodes[0];
                 story.Text += nextNewNode.content;
@@ -49,16 +54,17 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                 Thread.Sleep(500);
                 WebAPI.AddNode(MainSave.UID, nextNewNode.nodeid, story.nid, story.Text, newResult.data.nodes.Select(x => x.nodeid).ToArray());
                 WebAPI.DoNovelSave_Add(MainSave.UID, story.branchid, story.nid, newResult.data.nodes.Select(x => x.nodeid).ToArray(), story.GenNodes(), story.Text);
-                return story.Text;
+                return (oldText, nextNewNode.content);
             }
         }
         public static Bitmap GenStoryPic(string oldText, string newText)
         {
-            oldText = oldText.Replace("\n", "  \n");
-            newText = newText.Replace("\n", "  \n");            
-            int padding = 10, width = 900;
-            Font font = new Font("微软雅黑 Light", 16, FontStyle.Regular);
-            int maxWidth = width - padding * 2, charGap = -5, maxHeight = 0;
+            oldText = "  " + oldText;
+            oldText = oldText.Replace("\\n", "\n").Replace("\n", "\n  ");
+            newText = newText.Replace("\\n", "\n").Replace("\n", "\n  ");            
+            int padding = 20, width = MainSave.PicWidth;
+            Font font = new Font(MainSave.Font, 16, FontStyle.Regular);
+            int maxWidth = width - padding * 2, charGap = -8, maxHeight = 0;
             using (Bitmap Result = new Bitmap(width, 30000))
             {
                 using (Graphics g = Graphics.FromImage(Result))
@@ -67,18 +73,15 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     g.FillRectangle(Brushes.White, new RectangleF(0, 0, width, 30000));
                     PointF nowPoint = new PointF(padding, padding);
+                    float maxCharWidth = 0;
                     foreach (var item in oldText)
                     {
-                        var charSize = g.MeasureString(item.ToString(), font);
-                        g.DrawString(item.ToString(), font, Brushes.Black, nowPoint);
-                        WrapTest(maxWidth, padding, charGap, charSize, ref nowPoint);
+                        DrawString(g, item, Brushes.Black, ref nowPoint, font, padding, charGap, ref maxCharWidth, maxWidth, out float charHeight);
                     }
                     foreach (var item in newText)
                     {
-                        var charSize = g.MeasureString(item.ToString(), font);
-                        g.DrawString(item.ToString(), font, Brushes.Red, nowPoint);
-                        WrapTest(maxWidth, padding, charGap, charSize, ref nowPoint);
-                        maxHeight = (int)(nowPoint.Y + charSize.Height + padding * 2);
+                        DrawString(g, item, Brushes.Red, ref nowPoint, font, padding, charGap, ref maxCharWidth, maxWidth, out float charHeight);
+                        maxHeight = (int)(nowPoint.Y + charHeight + padding);
                     }
                 }
                 Bitmap tmp = new Bitmap(width, maxHeight);
@@ -86,6 +89,22 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                     g.DrawImageUnscaled(Result, new Point(0, 0));
                 return tmp;
             }
+        }
+        public static void DrawString(Graphics g, char text, Brush color, ref PointF point, Font font, int padding, int charGap, ref float maxCharWidth, int maxWidth, out float charHeight)
+        {
+            var charSize = g.MeasureString(text.ToString(), font);
+            charHeight = charSize.Height;
+            if (text == '\n')
+            {
+                point.X = padding;
+                point.Y += charSize.Height + 2;
+                return;
+            }
+            if (charSize.Width < -charGap)
+                charSize.Width = maxCharWidth > 0 ? maxCharWidth : (-charGap) * 3;
+            maxCharWidth = Math.Max(maxCharWidth, charSize.Width);
+            g.DrawString(text.ToString(), font, color, point);
+            WrapTest(maxWidth, padding, charGap, charSize, ref point);
         }
         public static void WrapTest(int maxWidth, int padding, int charGap, SizeF charSize, ref PointF point)
         {
@@ -124,7 +143,18 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
             }
             else
             {
-                msg = GetStoryString(e.FromGroup, content);
+                lock (StoreStory.StoreInstance)
+                {
+                    e.FromGroup.SendGroupMessage(MainSave.ThinkText.Split('|').OrderBy(x => Guid.NewGuid().ToString()).First());
+                    (string oldText, string newText) = GetStoryString(e.FromGroup, content);
+                    using (Bitmap pic = GenStoryPic(oldText, newText))
+                    {
+                        Directory.CreateDirectory(Path.Combine(MainSave.ImageDirectory, "Story"));
+                        string filename = $"{DateTime.Now:yyyyMMDDHHmmss}.png";
+                        pic.Save(Path.Combine(MainSave.ImageDirectory, "Story", filename));
+                        msg = CQApi.CQCode_Image(Path.Combine("Story", filename)).ToSendString();
+                    }
+                }
             }
             sendText.MsgToSend.Add(msg);
             result.SendObject.Add(sendText);
@@ -156,7 +186,18 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
             }
             else
             {
-                msg = GetStoryString(e.FromQQ, content);
+                lock (StoreStory.StoreInstance)
+                {
+                    e.FromQQ.SendPrivateMessage(MainSave.ThinkText.Split('|').OrderBy(x => Guid.NewGuid().ToString()).First());
+                    (string oldText, string newText) = GetStoryString(e.FromQQ, content);
+                    using (Bitmap pic = GenStoryPic(oldText, newText))
+                    {
+                        Directory.CreateDirectory(Path.Combine(MainSave.ImageDirectory, "Story"));
+                        string filename = $"{DateTime.Now:yyyyMMDDHHmmss}.png";
+                        pic.Save(Path.Combine(MainSave.ImageDirectory, "Story", filename));
+                        msg = CQApi.CQCode_Image(Path.Combine("Story", filename)).ToSendString();
+                    }
+                }
             }
             sendText.MsgToSend.Add(msg);
             result.SendObject.Add(sendText);

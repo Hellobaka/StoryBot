@@ -67,6 +67,7 @@
     <Compile Include="Event_PrivateMessage.cs" />
     <Compile Include="Event_GroupMessage.cs" />
     <Compile Include="Event_StartUp.cs" />
+    <Compile Include="OrderFunctions\Help.cs" />
     <Compile Include="OrderFunctions\DoStory.cs" />
     <Compile Include="OrderFunctions\EndStory.cs" />
     <Compile Include="OrderFunctions\Verify.cs" />
