@@ -73,10 +73,8 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         {
             get
             {
-                if (configMain != null)
-                    return configMain;
-                configMain = new IniConfig(Path.Combine(AppDirectory, "Config.ini"));
-                configMain.Encoding = System.Text.Encoding.UTF8;
+                configMain = new IniConfig(Path.Combine(AppDirectory, "Config.ini"), System.Text.Encoding.UTF8);
+                //configMain = new IniConfig("Config.ini");
                 configMain.Load();
                 return configMain;
             }
