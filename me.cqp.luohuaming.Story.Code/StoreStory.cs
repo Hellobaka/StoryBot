@@ -1,5 +1,6 @@
 ﻿using me.cqp.luohuaming.Story.PublicInfos;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -64,9 +65,9 @@ namespace me.cqp.luohuaming.Story.Code
             }
             public Story()
             {
-                Thread thread = new Thread(() =>
+                new Thread(() =>
                 {
-                    MainSave.CQLog.Info("续写超时时钟", "生效");
+                    MainSave.CQLog.Info("续写超时时钟", "生效");                    
                     while (true)
                     {
                         Thread.Sleep(500);
@@ -77,7 +78,7 @@ namespace me.cqp.luohuaming.Story.Code
                         }
                         timeout += 500;
                     }
-                });
+                }).Start();
             }
         }
         public static Dictionary<long, Story> StoreInstance = new Dictionary<long, Story>();
