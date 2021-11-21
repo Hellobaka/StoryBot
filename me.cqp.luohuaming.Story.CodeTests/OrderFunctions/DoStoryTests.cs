@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
+using me.cqp.luohuaming.Story.PublicInfos;
 
 namespace me.cqp.luohuaming.Story.Code.OrderFunctions.Tests
 {
@@ -16,6 +17,8 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions.Tests
         [TestMethod()]
         public void GenStoryPicTest()
         {
+            new StoreStory.Story { Origin = 0, IsGroup = false };
+            Console.WriteLine(MainSave.Font);
             DoStory.GenStoryPic(File.ReadAllText("old.txt"), File.ReadAllText("new.txt")).Save("1.png");
             Process.Start("1.png");
         }

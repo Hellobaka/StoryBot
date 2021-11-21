@@ -68,6 +68,10 @@
       <Project>{7A675AAC-50C1-49A8-A663-9CAA6674C614}</Project>
       <Name>me.cqp.luohuaming.Story.Code</Name>
     </ProjectReference>
+    <ProjectReference Include="..\me.cqp.luohuaming.Story.PublicInfos\me.cqp.luohuaming.Story.PublicInfos.csproj">
+      <Project>{E51E5D1F-7BB5-4A0A-B82A-4889267EE82F}</Project>
+      <Name>me.cqp.luohuaming.Story.PublicInfos</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

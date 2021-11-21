@@ -10,7 +10,7 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
 {
     public class Verify : IOrderModel
     {
-        public bool ImplementFlag { get; set; } = true;
+        public bool ImplementFlag { get; set; } = false;
         
         public string GetOrderStr() => "#verify";
 
