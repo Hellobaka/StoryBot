@@ -15,6 +15,7 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
         {
             if (StoreStory.StoreInstance.ContainsKey(Origin))
             {
+                StoreStory.StoreInstance[Origin].ExitFlag = true;
                 StoreStory.StoreInstance.Remove(Origin);
                 return (true, "结束成功，现可重新开始一次续写");
             }

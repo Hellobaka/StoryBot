@@ -28,10 +28,12 @@ namespace me.cqp.luohuaming.Story.Code
             public string branchid { get; set; } = "";
             public string mid { get; set; } = "";
             public string Text { get; set; } = "";
+            public bool ExitFlag { get; set; } = false;
 
             private long timeout = 0;
             private void CallRemove()
             {
+                ExitFlag = true;
                 MainSave.CQLog.Info("续写超时", "无动作十分钟，自动销毁");
                 string msg = "续写已十分钟无响应，触发自动终止，现可重新开始一次续写";
                 if (IsGroup)
@@ -68,7 +70,7 @@ namespace me.cqp.luohuaming.Story.Code
                 new Thread(() =>
                 {
                     MainSave.CQLog.Info("续写超时时钟", "生效");                    
-                    while (true)
+                    while (!ExitFlag)
                     {
                         Thread.Sleep(500);
                         if (timeout > 1000 * 60 * 10)
