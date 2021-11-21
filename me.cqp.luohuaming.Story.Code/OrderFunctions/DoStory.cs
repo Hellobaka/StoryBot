@@ -19,7 +19,7 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
         public bool Judge(string destStr) => destStr.StartsWith(GetOrderStr());
 
         private object StoryLock = new object();
-        public (string, string) GetStoryString(long Origin, string content)
+        public (string, string) GetStoryString(long Origin, string content, bool retry = false)
         {
             var story = StoreStory.StoreInstance[Origin];
             story.UpdateRemove();
@@ -35,6 +35,10 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                 story.nodes.Add(newNode);
                 Thread.Sleep(500);
                 var newResult = WebAPI.NovelAI(MainSave.UID, story.branchid, story.nodes[0].nodeid, story.nid, story.mid, story.Text);
+                if (newResult == null || newResult.data.nodes?.Length == 0)
+                {
+                    return ("error", "error");
+                }
                 var nextNewNode = newResult.data.nodes[0];
                 story.Text += nextNewNode.content;
                 story.nodes.Add(new StoreStory.Node { nodeid= nextNewNode.nodeid, parentid= nextNewNode.parentid });
@@ -45,9 +49,14 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
             }
             else
             {
-                story.Text += content;
+                if(!retry)
+                    story.Text += content;
                 string oldText = story.Text;
                 var newResult = WebAPI.NovelAI(MainSave.UID, story.branchid, story.nodes[story.nodes.Count-1].nodeid, story.nid, story.mid, story.Text);
+                if(newResult == null || newResult.data.nodes?.Length==0)
+                {
+                    return ("error", "error");
+                }
                 var nextNewNode = newResult.data.nodes[0];
                 story.Text += nextNewNode.content;
                 story.nodes.Add(new StoreStory.Node { nodeid = nextNewNode.nodeid, parentid = nextNewNode.parentid });
@@ -146,13 +155,32 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                 lock (StoreStory.StoreInstance)
                 {
                     e.FromGroup.SendGroupMessage(MainSave.ThinkText.Split('|').OrderBy(x => Guid.NewGuid().ToString()).First());
-                    (string oldText, string newText) = GetStoryString(e.FromGroup, content);
-                    using (Bitmap pic = GenStoryPic(oldText, newText))
+                    try
                     {
-                        Directory.CreateDirectory(Path.Combine(MainSave.ImageDirectory, "Story"));
-                        string filename = $"{DateTime.Now:yyyyMMDDHHmmss}.png";
-                        pic.Save(Path.Combine(MainSave.ImageDirectory, "Story", filename));
-                        msg = CQApi.CQCode_Image(Path.Combine("Story", filename)).ToSendString();
+                        (string oldText, string newText) = GetStoryString(e.FromGroup, content);
+                        if(oldText == "error" && oldText == newText)
+                        {
+                            Thread.Sleep(1000);
+                            (oldText, newText) = GetStoryString(e.FromGroup, content);
+                            if (oldText == "error" && oldText == newText)
+                            {
+                                e.FromGroup.SendGroupMessage("调用出错，内容大概率已保存，输入 续写 以继续");
+                                return result;
+                            }
+                        }
+                        using (Bitmap pic = GenStoryPic(oldText, newText))
+                        {
+                            Directory.CreateDirectory(Path.Combine(MainSave.ImageDirectory, "Story"));
+                            string filename = $"{DateTime.Now:yyyyMMDDHHmmss}.png";
+                            pic.Save(Path.Combine(MainSave.ImageDirectory, "Story", filename));
+                            msg = CQApi.CQCode_Image(Path.Combine("Story", filename)).ToSendString();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        e.FromGroup.SendGroupMessage("调用出错，尝试重新调用。请查验后台日志");
+                        e.CQLog.Info("调用出错", ex.Message);
+                        return result;
                     }
                 }
             }
@@ -186,10 +214,19 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
             }
             else
             {
-                lock (StoreStory.StoreInstance)
+                try
                 {
-                    e.FromQQ.SendPrivateMessage(MainSave.ThinkText.Split('|').OrderBy(x => Guid.NewGuid().ToString()).First());
                     (string oldText, string newText) = GetStoryString(e.FromQQ, content);
+                    if (oldText == "error" && oldText == newText)
+                    {
+                        Thread.Sleep(1000);
+                        (oldText, newText) = GetStoryString(e.FromQQ, content);
+                        if (oldText == "error" && oldText == newText)
+                        {
+                            e.FromQQ.SendPrivateMessage("调用出错，内容大概率已保存，输入 续写 以继续");
+                            return result;
+                        }
+                    }
                     using (Bitmap pic = GenStoryPic(oldText, newText))
                     {
                         Directory.CreateDirectory(Path.Combine(MainSave.ImageDirectory, "Story"));
@@ -197,6 +234,12 @@ namespace me.cqp.luohuaming.Story.Code.OrderFunctions
                         pic.Save(Path.Combine(MainSave.ImageDirectory, "Story", filename));
                         msg = CQApi.CQCode_Image(Path.Combine("Story", filename)).ToSendString();
                     }
+                }
+                catch (Exception ex)
+                {
+                    e.FromQQ.SendPrivateMessage("调用出错，尝试重新调用。请查验后台日志");
+                    e.CQLog.Info("调用出错", ex.Message);
+                    return result;
                 }
             }
             sendText.MsgToSend.Add(msg);
