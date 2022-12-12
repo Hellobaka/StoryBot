@@ -21,7 +21,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         }
         public static UserInfo.Index VerifyUID(string UID)
         {
-            string baseURL = $"http://if.caiyunai.com/v2/user/{UID}/info";
+            string baseURL = $"https://fiction.cyapi.cn/v2/user/{UID}/info";
             using (var http = GetHttp())
             {
                 var result = http.UploadString(baseURL, "{\"ostype\": \"\", \"lang\": \"zh\"}");
@@ -38,7 +38,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         }
         public static NovelSave_New.Index NewNovel(string UID, string content, string title)
         {
-            string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/novel_save";
+            string baseURL = $"https://fiction.cyapi.cn/v2/novel/{UID}/novel_save";
             using (var http = GetHttp())
             {
                 var json = new JObject
@@ -64,7 +64,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
 
         public static NovelAI.Index NovelAI(string UID, string branchID, string lastnode, string nid, string mid, string content)
         {
-            string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/novel_ai";
+            string baseURL = $"https://fiction.cyapi.cn/v2/novel/{UID}/novel_ai";
             using (var http = GetHttp())
             {
                 JObject json = new JObject
@@ -95,7 +95,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         }
         public static bool AddNode(string UID, string choose, string nid, string value, string[] nodeids)
         {
-            string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/add_node";
+            string baseURL = $"https://fiction.cyapi.cn/v2/novel/{UID}/add_node";
             using (var http = GetHttp())
             {
                 JObject json = new JObject
@@ -122,7 +122,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         }
         public static NovelSave_Add.Index DoNovelSave_Add(string UID, string branchid, string nid, string[] nodeids, JArray nodes, string text)
         {
-            string baseURL = $"http://if.caiyunai.com/v2/novel/{UID}/novel_save";
+            string baseURL = $"https://fiction.cyapi.cn/v2/novel/{UID}/novel_save";
             using(var http = GetHttp())
             {
                 var json = new JObject
@@ -150,7 +150,7 @@ namespace me.cqp.luohuaming.Story.PublicInfos
         }
         public static void GetModelList()
         {
-            string baseURL = "http://if.caiyunai.com/v2/model/model_list";
+            string baseURL = "https://fiction.cyapi.cn/v2/model/model_list";
             using(var http = GetHttp())
             {
                 var json = http.DownloadString(baseURL);
